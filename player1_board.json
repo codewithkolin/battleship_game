@@ -1,0 +1,6 @@
+{
+  "battleship": ["E4-H4"],
+  "cruiser": ["A5-A7", "H7-J7"],
+  "destroyer": ["B3-C3", "D6-E6", "D8-E8"],
+  "submarine": ["F1", "D10", "F10", "H10"]
+}

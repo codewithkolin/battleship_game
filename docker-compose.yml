@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  battleship:
+    build: .
+    image: battleship
+    volumes:
+    - ./data:/home/app_user/data
+    stdin_open: true
+    tty: true
