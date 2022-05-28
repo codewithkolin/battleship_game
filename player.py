@@ -109,3 +109,12 @@ class Player(object):
     @property
     def success_hits(self) -> int:
         return self.opponent.board.success_hits
+
+    @property
+    def no_winner(self) -> bool:
+        """
+
+        Returns: no win after all the shots taken from file
+
+        """
+        return True

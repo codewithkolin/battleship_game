@@ -2,6 +2,8 @@ class ErrorMessageCode(object):
     """Error messages keep under this class"""
 
     OSERROR = "OS error occurred trying to open {}"
+    MISSING_ARG_PLAYER1_NAME = "Please enter the Player1 name!"
+    MISSING_ARG_PLAYER2_NAME = "Please enter the Player2 name!."
     MISSING_ARG_PLAYER1 = "Please enter the Player1 configuration file.!"
     MISSING_ARG_PLAYER2 = "Please enter the Player2 configuration file."
     MISSING_ARG_FIRSTPLAYER = "Please determine first player!"

@@ -38,7 +38,7 @@ class ScreenShot(object):
 
     def print_two_shot(self, label1: str, label2: str):
         """
-        Prints sceenshot on the console
+        Prints screenshot on the console
         """
         space_len = 20
         space = " ".join(["" for i in range(space_len)])

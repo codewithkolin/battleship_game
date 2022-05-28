@@ -38,16 +38,99 @@ def read_file(file_name: str) -> str:
 
 
 class GameConfiguration(object):
-    def __init__(self, config_file_name: str):
+    def __init__(self, board_size: int, config_file_name: str, option: bool):
         """Reads game configuration from config file
 
         Args:
             config_file_name (str): config file name
         """
         super().__init__()
+        # global DEFAULT_SIZE
+        # DEFAULT_SIZE = board_size
         self._size = DEFAULT_SIZE
         self._fleet = DEFAULT_FLEET
         self.config_file_name = config_file_name
+        size_change = {}
+        size_change["board"] = {"size": board_size}
+        size_change['boat'] = DEFAULT_FLEET
+        json_object = json.dumps(size_change, indent=2)
+        with open("game_config.json", "w") as outfile:
+            outfile.write(json_object)
+        if option:
+            self.interactive_board_setup(config_file_name)
+
+    def interactive_board_setup(self, config_file_name):
+        game_config = {}
+        print("Please select size of Board.")
+        print("Enter 1 for default 10x10")
+        print("Enter 2 for custom board of X x X")
+        board_size_opt = int(input("Please enter option now.\n"))
+        if board_size_opt == 1:
+            self._size = DEFAULT_SIZE
+            print("Default Board of 10 x 10 size selected.\n")
+        elif board_size_opt == 2:
+            self._size = int(input("Please enter Board Size.\n"))
+            if self._size > 26:
+                print("Board size cannot exceed 26.")
+                self._size = DEFAULT_SIZE
+            print("Board size is " + str(self._size) + ' X ' + str(self._size))
+        else:
+            print("Incorrect option! Continuing with default Board of 10 X 10 size.\n")
+            self._size = DEFAULT_SIZE
+        game_config["board"] = {"size": self._size}
+        print("Please select Type of Fleets.")
+        print("Enter 1 for default Fleets.")
+        print("Enter 2 for custom Fleets with size and quantity.")
+
+        Fleet_size_opt = int(input("Please enter your option now.\n"))
+        config = {}
+        if Fleet_size_opt == 1:
+            self._fleet = DEFAULT_FLEET
+            for key, val in DEFAULT_FLEET.items():
+                print(key, val)
+            config['boat'] = DEFAULT_FLEET
+            game_config.update(config)
+
+        if Fleet_size_opt == 2:
+            NEW_FLEET = {}
+            Fleet_no = int(input("How many fleet you want to add?\n"))
+            for i in range(Fleet_no):
+                Fleet_name = str(input("Please enter fleet name.\n"))
+                Fleet_size = int(input("Please enter fleet size.\n"))
+                Fleet_quantity = int(input("Please enter fleet quantity.\n"))
+                NEW_FLEET[Fleet_name] = {"size": Fleet_size, "quantity": Fleet_quantity}
+                print(NEW_FLEET)
+            self._fleet = NEW_FLEET
+            config['boat'] = NEW_FLEET
+            game_config.update(config)
+        json_object = json.dumps(game_config, indent=2)
+
+        # Writing to sample.json
+        with open("game_config.json", "w") as outfile:
+            outfile.write(json_object)
+        self.config_file_name = config_file_name
+
+    def fleet_position(self, config, player):
+        dic = {}
+        place = []
+        print("To place you ship horizontal eg :- C5-H5 for horizontal placing ship")
+        print("To place you ship vertical eg :- A1-A8 for vertical placing ship")
+        for i, v in config.items():
+            print("For fleet {} Please enter {} times.".format(i, v["quantity"]))
+            for x in range(config[i]['quantity']):
+                loc_input = str(input(
+                    "Enter location to place your ship for fleet {} with size {}.\n".format(i, config[i]['size'])))
+                place.append(loc_input)
+            dic[i] = place
+            place = []
+            print(dic)
+
+        json_object = json.dumps(dic, indent=2)
+
+        # Writing to sample.json
+        with open(player.lower() + "_board.json", "w") as outfile:
+            outfile.write(json_object)
+        return player.lower() + "_board.json"
 
     def _validate_boat_configuration(self, boat_name: str, values: dict):
         """

@@ -3,17 +3,13 @@
     "size": 10
   },
   "boat": {
-    "battleship": {
-      "size": 4, "quantity": 1
+    "test": {
+      "size": 1,
+      "quantity": 2
     },
-    "cruiser": {
-      "size": 3, "quantity": 2
-    },
-    "destroyer": {
-      "size": 2, "quantity": 3
-    },
-    "submarine": {
-      "size": 1, "quantity": 4
+    "est1": {
+      "size": 1,
+      "quantity": 3
     }
   }
 }
