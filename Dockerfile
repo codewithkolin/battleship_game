@@ -9,4 +9,4 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 USER $USER
 COPY . .
-CMD ["python","battleship_runner.py", "-p1_name", "suman" ,"-p1", "player1_board.json", "-p2_name", "neha", "-p2", "player2_board.json"]
+CMD ["python", "battleship_runner.py", "-p1_name", "Player1" ,"-p1", "player1_board.json", "-p2_name", "Player2", "-p2", "player2_board.json", "-f", "P2"]
