@@ -14,42 +14,61 @@ from player import Player
 import helper
 from screenshot import ScreenShot
 from boat import Boat
-import random
+import string
+from Tests.automation_test import Automation_test
 
 
 class BattleshipGame(object):
-    def __init__(self, capture_screenshot: bool = True):
-        print("*************** Welcome to BATTLESHIP! ***************")
-        args = parse_args(sys.argv[1:])
-        if not args.interactive_play:
-            errors = validate_args(args)
-            for message in errors:
-                print(">>>", message)
-            if errors:
-                exit()
-            self.player1_config = args.player1[0]
-            self.player2_config = args.player2[0]
-            self.player1_name = args.player1_name[0]
-            self.player2_name = args.player2_name[0]
-            self.p1_shots_file = 'p1_shots.txt'
-            self.p2_shots_file = 'p2_shots.txt'
-            self.game_config = args.config
-            self.board_size = args.board_size
-            if type(args.board_size) == list:
-                self.board_size = args.board_size[0]
-        if args.interactive_play:
-            print("Let start interactive gameplay.\n")
-            self.player1_name = str(input("Player 1 please enter your name.\n"))
-            self.player2_name = str(input("Player 2 please enter your name.\n"))
-            self.player1_config = 'player1_board.json'
-            self.player2_config = 'player2_board.json'
-            self.game_config = 'game_config.json'
-            self.board_size = args.board_size
-            if type(args.board_size) == list:
-                self.board_size = args.board_size[0]
-        self.screenshots = ScreenShot()
-        self.capture_screen_shot = capture_screenshot
-        self.option = args.interactive_play
+    def __init__(self, test=False, test_info: dict = False, capture_screenshot: bool = True):
+
+        if test:
+            print("*************** Welcome to Automation Test of BATTLESHIP! ***************")
+            # print("Let start interactive gameplay.\n")
+            # self.player1_name = str("Player1_Test")
+            # self.player2_name = str("Player1_Test")
+            # self.player1_config = 'player1_Test_board.json'
+            # self.player2_config = 'player2_Test_board.json'
+            # self.game_config = 'Tests/game_config.json'
+            # # self.board_size = args.board_size
+            # # if type(args.board_size) == list:
+            # #     self.board_size = args.board_size[0]
+
+        else:
+            print("*************** Welcome to BATTLESHIP! ***************")
+            args = parse_args(sys.argv[1:])
+            if not args.interactive_play:
+                errors = validate_args(args)
+                for message in errors:
+                    print(">>>", message)
+                if errors:
+                    exit()
+                self.player1_config = args.player1[0]
+                self.player2_config = args.player2[0]
+                self.player1_name = args.player1_name[0]
+                self.player2_name = args.player2_name[0]
+                self.p1_shots_file = 'p1_shots.txt'
+                self.p2_shots_file = 'p2_shots.txt'
+                self.game_config = args.config
+                self.board_size = args.board_size
+                if type(args.board_size) == list:
+                    self.board_size = args.board_size[0]
+            if args.interactive_play:
+                print("Let start interactive gameplay.\n")
+                self.player1_name = str(input("Player 1 please enter your name.\n"))
+                self.player2_name = str(input("Player 2 please enter your name.\n"))
+                self.player1_config = 'player1_board.json'
+                self.player2_config = 'player2_board.json'
+                self.game_config = 'game_config.json'
+                self.board_size = args.board_size
+                if type(args.board_size) == list:
+                    self.board_size = args.board_size[0]
+            self.shots = []
+            self.all_shots_p2 = []
+            self.all_shots_p1 = []
+            self.first_player = args.firstplayer[0].upper()
+            self.screenshots = ScreenShot()
+            self.capture_screen_shot = capture_screenshot
+            self.option = args.interactive_play
 
     @staticmethod
     def exit_game(e: ConfigurationException):
@@ -127,17 +146,22 @@ class BattleshipGame(object):
         # set opponent
         player1.set_opponent(player2)
         player2.set_opponent(player1)
-        current_player = random.choice([player1, player2])
+        current_player = player1 if self.first_player == "P1" else player2
         # validating shots
         if not self.option:
             p1_data = read_file(self.p1_shots_file)
             p2_data = read_file(self.p2_shots_file)
             ret1 = validating_shots(p1_data.strip().split(" "), game_configuration.size)
             ret2 = validating_shots(p2_data.strip().split(" "), game_configuration.size)
-        self.all_shots_p1 = []
-        self.all_shots_p2 = []
         print("Starting the game")
         print("{} will start the game first.".format(current_player.player_name))
+        valid_locations = {}
+        temp = []
+        for i in string.ascii_uppercase[:game_configuration.size]:
+            for j in range(1, game_configuration.size + 1):
+                temp.append(j)
+            valid_locations[i] = temp
+            temp = []
         while not current_player.is_winner:
             if self.option:
                 try:
@@ -145,8 +169,19 @@ class BattleshipGame(object):
                     while True:
                         try:
                             self.shots = []
-                            self.shots.append(
-                                str(input("{} please enter location where you want to hit.\n".format(current_player.player_name))))
+                            while True:
+                                try:
+                                    self.shots.append(
+                                        str(input("{} please enter location where you want to hit.\n".format(
+                                            current_player.player_name))))
+                                    if self.shots[0][0] in valid_locations.keys() and int(self.shots[0][1::]) in \
+                                            valid_locations[self.shots[0][0]]:
+                                        break
+                                    else:
+                                        self.shots = []
+                                        print("Location outside box")
+                                except Exception as e:
+                                    print(e)
                             if current_player == player1:
                                 self.all_shots_p1.append(self.shots[0])
                                 if self.all_shots_p1.count(self.shots[0]) < 2:
@@ -163,6 +198,7 @@ class BattleshipGame(object):
                         except Exception as e:
                             print(e)
                     shots_positions = validating_shots(self.shots, game_configuration.size)
+
                     # if not len(self.shots):
                     #     raise Exception("Shots called was empty.")yes
                 except ConfigurationException as e:
@@ -175,16 +211,9 @@ class BattleshipGame(object):
                         shots_positions = ret2
                 except ConfigurationException as e:
                     self.exit_game(e)
-            # print("Validating Shots:")
-            # addressing_config = AddressingConfiguration(game_configuration.size)
-            # shots_positions: List[
-            #     Tuple[int, int]
-            # ] = addressing_config.get_shots_positions(self.shots)
-            # print("\t>>>> OK")
-            print("Starting the game")
-            print(f"{current_player.player_name} shoots first")
             shot_name = helper.get_cell_name(*shots_positions[0])
-            attack_result: Tuple[bool, Boat] = current_player.attack(col=shots_positions[0][0], row=shots_positions[0][1])
+            attack_result: Tuple[bool, Boat] = current_player.attack(col=shots_positions[0][0],
+                                                                     row=shots_positions[0][1])
             info = f"{current_player.player_name}: {shot_name} -> "
             if attack_result[0]:
                 info += "Hit {}".format(attack_result[1].label.capitalize())
@@ -208,7 +237,8 @@ class BattleshipGame(object):
                 if 0 in (len(ret1), len(ret2)):
                     print(f"{player1.player_name} success hit count ->", player1.success_hits)
                     print(f"{player2.player_name} success hit count ->", player2.success_hits)
-                    print(player1.player_name + " won!" if player1.success_hits >player2.success_hits else player2.player_name + " won!")
+                    print(
+                        player1.player_name + " won!" if player1.success_hits > player2.success_hits else player2.player_name + " won!")
                     break
         self.screenshots.screen_shot(
             player1.board.grid, "{} - Final status of the board".format(player1.player_name))
@@ -227,15 +257,23 @@ class BattleshipGame(object):
                 "{} - Final status of the board".format(player2.player_name),
             )
 
-def validating_shots(shot,game_config):
+
+def validating_shots(shot, Board_size):
+    """
+
+    Args:
+        shot: list : All shots in a form of list
+        Board_size: size of board defined
+    Returns: shots_positions in a form of tuple of row and column
+
+    """
     print("Validating Shots:")
-    addressing_config = AddressingConfiguration(game_config)
+    addressing_config = AddressingConfiguration(Board_size)
     shots_positions: List[
         Tuple[int, int]
     ] = addressing_config.get_shots_positions(shot)
     print("\t>>>> OK")
     return shots_positions
-
 
 
 def main():
