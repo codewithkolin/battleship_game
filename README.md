@@ -20,14 +20,14 @@ There is 2 ways to run this project.
    1. Please install docker desktop to run the dockerized file.
    
    2. Because the project was dockerized, you can use the following command to get an interactive shell:
-      1. If you haven't changed the argument in dockerfile, Game will run without any user input.
+      1. For non-interactive gameplay(no user input required.)
         
-            To Run `$ docker-compose run --rm battleship`
-      2. If you have added "-i", "True" in CMD ["python", "battleship_runner.py", "-p1_name", "Player1" ,"-p1", "player1_board.json", "-p2_name", "Player2", "-p2", "player2_board.json", "-f", "P2"]
+          1. To Run `$ docker-compose run --rm battleship`
+      2. For interactive gameplay.
             
             To Run:
-         1. `$ docker compose build battleship`
-         2. `$ docker run -i -t battleship`       
+         1. `$ docker run -i -t battleship python battleship_runner.py -i True -f P1`
+      
  
  The container and image are named `battleship`.
  
