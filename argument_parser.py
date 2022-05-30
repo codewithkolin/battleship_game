@@ -47,7 +47,7 @@ def parse_args(args: List[str]):
         nargs=1,
         metavar="player_name",
         default=None,
-        help="Name of player 1",
+        help="Name of player 2",
     )
     parser.add_argument(
         "-p1",
@@ -69,6 +69,15 @@ def parse_args(args: List[str]):
         help="Player 2 board config file. It must be in json format.",
     )
 
+    parser.add_argument(
+        "-f",
+        "--firstplayer",
+        type=str,
+        nargs=1,
+        metavar="P1 or P2",
+        default=None,
+        help="Specifics First player.",
+    )
     parser.add_argument(
         "-b",
         "--board_size",
@@ -111,10 +120,10 @@ def validate_args(args: argument_type) -> List[str]:
         messages.append(ErrorMessageCode.MISSING_ARG_PLAYER1)
     if not args.player2:
         messages.append(ErrorMessageCode.MISSING_ARG_PLAYER2)
-    # if not args.firstplayer:
-    #     messages.append(ErrorMessageCode.MISSING_ARG_FIRSTPLAYER)
-    # elif args.firstplayer and args.firstplayer[0].upper() not in ["P1", "P2"]:
-    #     messages.append(ErrorMessageCode.INVALID_ARG_FIRSTPLAYER)
+    if not args.firstplayer:
+        messages.append(ErrorMessageCode.MISSING_ARG_FIRSTPLAYER)
+    elif args.firstplayer and args.firstplayer[0].upper() not in ["P1", "P2"]:
+        messages.append(ErrorMessageCode.INVALID_ARG_FIRSTPLAYER)
     # if not args.shots and not args.shotsfile:
     #     messages.append(ErrorMessageCode.MISSING_ARG_SHOTS)
     # checks player 1 file exists on path
@@ -127,10 +136,4 @@ def validate_args(args: argument_type) -> List[str]:
     game_config_file = args.config[0] if isinstance(args.config, list) else args.config
     if not os.path.exists(game_config_file):
         messages.append(ErrorMessageCode.INVALID_FILE_NAME.format(game_config_file))
-    # checks if shots is a file, exists on path
-    # if len(args.shotsfile) == 1 and not os.path.exists(
-    #     args.shotsfile[0]
-    # ):  # its file name
-    #     messages.append(ErrorMessageCode.INVALID_FILE_NAME.format(args.shotsfile[0]))
-
     return messages
